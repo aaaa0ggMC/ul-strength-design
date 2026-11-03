@@ -319,14 +319,26 @@ public final class DesignRegistry {
         return sig;
     }
 
-    /** 首运把包内默认写成 config 覆盖模板（只在目录为空时）。 */
+    /**
+     * 首运写 config 覆盖模板（只在文件不存在时）。
+     *
+     * 只写空结构 + 用法说明，**不预填当前值**：预填会让每个键的生效来源都变成
+     * config 覆盖（{@code where} 失去意义），而且仓库默认值日后调整会被旧模板
+     * 静默挡住。可用键与当前生效值看 {@code /ulstrength list}。
+     */
     public static void writeOverrideTemplate() {
         try {
             File target = new File(configDir, "overrides.json");
             if (configDir == null || target.exists()) {
                 return;
             }
-            Files.write(target.toPath(), GSON.toJson(raw()).getBytes(StandardCharsets.UTF_8));
+            JsonObject template = new JsonObject();
+            template.addProperty("_doc", "实例侧覆盖：只写要改的键，值即覆盖包内/模组默认。"
+                    + "可用键与当前生效值用 /ulstrength list 查看，来源用 /ulstrength where <key>。"
+                    + "保存后 5 秒内自动热重载，或 /ulstrength reload。");
+            template.add("values", new JsonObject());
+            template.add("tiers", new JsonObject());
+            Files.write(target.toPath(), GSON.toJson(template).getBytes(StandardCharsets.UTF_8));
             LOGGER.info("[uld] Wrote override template {}", target.getName());
         } catch (Throwable t) {
             LOGGER.warn("[uld] Failed to write override template: {}", t.toString());
