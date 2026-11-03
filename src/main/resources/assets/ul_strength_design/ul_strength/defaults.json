@@ -1,0 +1,91 @@
+{
+  "_doc": "UL 强度设计层·包内默认值。对齐流程：在 config/ul_strength_design/overrides.json 里覆盖同名键（后加载赢）→ 游戏 5 秒内自动热重载或 /ulstrength reload。 tiers=档位表（改档位全线跟随）；values=具体键，命名 <line>.<system>.<item>。",
+  "tiers": {
+    "_doc": "档位表：数值对齐改这里，引用档位的地方全部跟随。",
+    "damage": {
+      "_doc": "伤害档（点）。",
+      "t1": 2.0,
+      "t2": 4.0,
+      "t3": 6.0,
+      "t4": 9.0,
+      "t5": 13.0
+    },
+    "health": {
+      "_doc": "生命值档（点）。",
+      "t1": 10.0,
+      "t2": 20.0,
+      "t3": 40.0,
+      "t4": 80.0,
+      "t5": 160.0
+    },
+    "cooldown_seconds": {
+      "_doc": "冷却档（秒）。",
+      "t1": 8.0,
+      "t2": 15.0,
+      "t3": 30.0,
+      "t4": 60.0,
+      "t5": 120.0
+    },
+    "speed": {
+      "_doc": "移速倍率档。",
+      "t1": 1.0,
+      "t2": 0.85,
+      "t3": 0.75,
+      "t4": 0.6,
+      "t5": 0.45
+    }
+  },
+  "values": {
+    "_doc": "具体数值键。",
+
+    "overworld.ankh.armor_bonus": 2.0,
+
+    "zombie_tide.horde.recruit_radius": 16.0,
+    "zombie_tide.horde.recruit_cooldown_ticks": 160,
+    "zombie_tide.horde.follow_cap_full": 20,
+    "zombie_tide.horde.follow_cap_high": 16,
+    "zombie_tide.horde.follow_cap_mid": 12,
+    "zombie_tide.horde.follow_cap_low": 8,
+    "zombie_tide.horde.persuasion_start": 100.0,
+    "zombie_tide.horde.persuasion_win": 10.0,
+    "zombie_tide.horde.persuasion_fail": -20.0,
+    "zombie_tide.horde.persuasion_threshold_high": 80.0,
+    "zombie_tide.horde.persuasion_threshold_mid": 50.0,
+    "zombie_tide.horde.persuasion_threshold_low": 20.0,
+    "zombie_tide.horde.mult_high": 1.0,
+    "zombie_tide.horde.mult_mid": 0.85,
+    "zombie_tide.horde.mult_low": 0.7,
+    "zombie_tide.horde.mult_bottom": 0.55,
+    "zombie_tide.horde.persuasion_hurt_below": 0.5,
+    "zombie_tide.horde.village_radius": 32.0,
+    "zombie_tide.horde.village_min_villagers": 4,
+    "zombie_tide.horde.golem_interval_ticks": 100,
+    "zombie_tide.horde.golem_max_alive": 9,
+    "zombie_tide.horde.golem_multiplier": 3.0,
+    "zombie_tide.horde.flesh_drop": 1,
+    "zombie_tide.horde.abort_distance": 48.0,
+    "zombie_tide.horde.abort_ticks": 600,
+    "zombie_tide.horde.tick_interval": 20,
+    "zombie_tide.horde.follower_teleport_distance": 24.0,
+    "zombie_tide.horde.follower_offline_grace_ticks": 6000,
+
+    "zombie_tide.titan.melee_bonus": 6.0,
+    "zombie_tide.titan.knockback_resist": 0.8,
+    "zombie_tide.titan.speed_mult": 0.75,
+    "zombie_tide.titan.hunger_mult": 2.0,
+    "zombie_tide.titan.dig_mult": 0.5,
+    "zombie_tide.titan.headroom": 12,
+    "zombie_tide.titan.slam_radius": 4.5,
+    "zombie_tide.titan.slam_damage": 6.0,
+    "zombie_tide.titan.slam_slow_ticks": 60,
+    "zombie_tide.titan.slam_slow_amplifier": 1,
+    "zombie_tide.titan.slam_cooldown_ticks": 300,
+    "zombie_tide.titan.slam_hunger_cost": 4.0,
+    "zombie_tide.titan.scale": 6.0,
+
+    "zombie_tide.relic.flesh_cost": 8,
+    "zombie_tide.relic.gold_cost": 1,
+    "zombie_tide.relic.aura_radius": 8.0,
+    "zombie_tide.relic.aura_interval_ticks": 20
+  }
+}

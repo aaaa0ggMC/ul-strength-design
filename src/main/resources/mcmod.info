@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "ul_strength_design",
+    "name": "UL Strength Design",
+    "description": "UL 整合包数值设计层：所有内容/适配模组的可调数值统一走这里——tiers 档位表 + values 键值，JSON 分层覆盖（包内默认 → config 覆盖），/ulstrength reload 热重载。代码里只留兜底默认值。",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["aaaa0ggmc"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
