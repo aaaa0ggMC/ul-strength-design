@@ -86,7 +86,7 @@ public class CommandUlStrength extends CommandBase {
                 for (String tier : UlStrength.keys("tier:")) {
                     // tier 键在 snapshot 里不可见，直接按约定名打表
                 }
-                for (String name : new String[]{"damage", "health", "cooldown_seconds", "speed"}) {
+                for (String name : new String[]{"damage", "health", "cooldown_ticks", "speed"}) {
                     StringBuilder sb = new StringBuilder("  " + name + ":");
                     for (String level : new String[]{"t1", "t2", "t3", "t4", "t5"}) {
                         sb.append(' ').append(level).append('=').append(UlStrength.tier(name, level));

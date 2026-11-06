@@ -38,6 +38,26 @@ public final class UlStrength {
         return DesignRegistry.tier(tier, level);
     }
 
+    /**
+     * 冷却取值（tick）——档位机制的统一入口。
+     *
+     * <p>优先级：具体值键 {@code valueKey}（config/模组可按能力覆盖）&gt; 档位表
+     * {@code cooldown_ticks.<tierLevel>}（t1..t5，改档位表全线跟随）&gt; {@code fallbackTicks} 兜底。</p>
+     *
+     * <p>单位契约：档位表与全部 {@code *_cooldown_ticks} 键均为 tick（20t=1s），本方法不做
+     * 秒换算；历史上以秒计的 {@code cooldown_seconds} 档位已改名换算为 {@code cooldown_ticks}
+     * （审计 M8：统一 *_ticks 命名、消除秒/tick 单位地雷），勿再引入秒单位冷却键。</p>
+     *
+     * 例：{@code int cd = UlStrength.cooldownTicks("zombie_tide.horde.recruit_cooldown_ticks", "t1", 160);}
+     */
+    public static int cooldownTicks(String valueKey, String tierLevel, int fallbackTicks) {
+        if (valueKey != null && !valueKey.isEmpty() && DesignRegistry.has(valueKey)) {
+            return DesignRegistry.integer(valueKey, fallbackTicks);
+        }
+        double tierValue = DesignRegistry.tier("cooldown_ticks", tierLevel);
+        return tierValue > 0.0D ? (int) Math.round(tierValue) : fallbackTicks;
+    }
+
     public static boolean has(String key) {
         return DesignRegistry.has(key);
     }
