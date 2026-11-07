@@ -79,6 +79,14 @@ public final class UlStrength {
         return DesignRegistry.size();
     }
 
+    /**
+     * 当前生效的外置难度名（{@code strengths/<返回值>/}）；袋子没装上时是配置里记的值，
+     * 实际生效的是 jar 内烘焙副本（= normal）。
+     */
+    public static String activeSet() {
+        return DesignRegistry.activeSet();
+    }
+
     public static Map<String, String> snapshot(String prefix) {
         return DesignRegistry.snapshot(prefix);
     }

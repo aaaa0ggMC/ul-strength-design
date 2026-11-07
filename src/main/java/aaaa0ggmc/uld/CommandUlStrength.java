@@ -97,7 +97,8 @@ public class CommandUlStrength extends CommandBase {
             }
             case "reload": {
                 UlStrength.reload();
-                sender.sendMessage(new TextComponentString("Reloaded strength design (" + UlStrength.size() + " values)."));
+                sender.sendMessage(new TextComponentString("Reloaded strength design (" + UlStrength.size()
+                        + " values, set: " + UlStrength.activeSet() + ")."));
                 break;
             }
             default:
