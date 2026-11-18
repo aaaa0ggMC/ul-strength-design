@@ -13,17 +13,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * /ulstrength —— 数值设计层的查看与热重载（OP）。
- *
- *   /ulstrength get &lt;key&gt;     生效值 + 来源
- *   /ulstrength list [prefix]  列出键值（前缀过滤）
- *   /ulstrength where &lt;key&gt;   该键生效值来自哪个文件
- *   /ulstrength tiers          档位表全量
- *   /ulstrength reload         手动热重载
  */
 public class CommandUlStrength extends CommandBase {
+
+    private final IStrengthService strength;
+
+    public CommandUlStrength() {
+        this(UlStrength.service());
+    }
+
+    public CommandUlStrength(IStrengthService strength) {
+        this.strength = strength;
+    }
 
     @Override
     public String getName() {
@@ -57,23 +63,23 @@ public class CommandUlStrength extends CommandBase {
                     throw new WrongUsageException("/ulstrength get <key>");
                 }
                 String key = args[1];
-                if (!UlStrength.has(key)) {
+                if (!strength.has(key)) {
                     throw new CommandException("Unknown key: " + key);
                 }
-                sender.sendMessage(new TextComponentString(key + " = " + UlStrength.snapshot(key).get(key)
-                        + "  <- " + UlStrength.source(key)));
+                sender.sendMessage(new TextComponentString(key + " = " + strength.snapshot(key).get(key)
+                        + "  <- " + strength.source(key)));
                 break;
             }
             case "where": {
                 if (args.length < 2) {
                     throw new WrongUsageException("/ulstrength where <key>");
                 }
-                sender.sendMessage(new TextComponentString(args[1] + " <- " + UlStrength.source(args[1])));
+                sender.sendMessage(new TextComponentString(args[1] + " <- " + strength.source(args[1])));
                 break;
             }
             case "list": {
                 String prefix = args.length > 1 ? args[1] : "";
-                Map<String, String> all = UlStrength.snapshot(prefix);
+                Map<String, String> all = strength.snapshot(prefix);
                 sender.sendMessage(new TextComponentString("Strength values (" + all.size() + ")"
                         + (prefix.isEmpty() ? "" : " prefix=" + prefix) + ":"));
                 for (Map.Entry<String, String> e : all.entrySet()) {
@@ -83,22 +89,23 @@ public class CommandUlStrength extends CommandBase {
             }
             case "tiers": {
                 sender.sendMessage(new TextComponentString("Tiers:"));
-                for (String tier : UlStrength.keys("tier:")) {
-                    // tier 键在 snapshot 里不可见，直接按约定名打表
+                Set<String> tiers = new TreeSet<>(strength.tierNames());
+                if (tiers.isEmpty()) {
+                    Collections.addAll(tiers, "damage", "health", "cooldown_ticks", "speed");
                 }
-                for (String name : new String[]{"damage", "health", "cooldown_ticks", "speed"}) {
+                for (String name : tiers) {
                     StringBuilder sb = new StringBuilder("  " + name + ":");
                     for (String level : new String[]{"t1", "t2", "t3", "t4", "t5"}) {
-                        sb.append(' ').append(level).append('=').append(UlStrength.tier(name, level));
+                        sb.append(' ').append(level).append('=').append(strength.tier(name, level));
                     }
                     sender.sendMessage(new TextComponentString(sb.toString()));
                 }
                 break;
             }
             case "reload": {
-                UlStrength.reload();
-                sender.sendMessage(new TextComponentString("Reloaded strength design (" + UlStrength.size()
-                        + " values, set: " + UlStrength.activeSet() + ")."));
+                strength.reload();
+                sender.sendMessage(new TextComponentString("Reloaded strength design (" + strength.size()
+                        + " values, set: " + strength.activeSet() + ")."));
                 break;
             }
             default:

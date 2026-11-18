@@ -2,17 +2,17 @@ package aaaa0ggmc.uld;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
- * UL Strength Design —— 整合包数值设计层。
- *
- * 所有内容/适配模组（ul-modpack、morphext-patch-*、ul-finders…）通过
- * {@link UlStrength} 取数值；对齐时只改 config/ul_strength_design/*.json，
- * 本模组每 5 秒检测 mtime 自动热重载，也可 /ulstrength reload。
+ * UL Strength Design —— 整合包数值设计层（组合根）。
  */
 @Mod(
         modid = StrengthDesign.MODID,
@@ -29,43 +29,57 @@ public class StrengthDesign {
     @Mod.Instance(MODID)
     public static StrengthDesign INSTANCE;
 
+    private final DesignRegistry strengthService = DesignRegistry.defaultInstance();
+    private ScheduledExecutorService reloadWatcher;
+    private volatile long lastSignature = Long.MIN_VALUE;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        DesignRegistry.init(event.getModConfigurationDirectory());
-        DesignRegistry.writeOverrideTemplate();
-        LOGGER.info("[uld] strength design online: {} values", UlStrength.size());
+        strengthService.initialize(event.getModConfigurationDirectory());
+        strengthService.createOverrideTemplateIfMissing();
+        UlStrength.setService(strengthService);
+        LOGGER.info("[uld] strength design online: {} values", strengthService.size());
     }
 
     @Mod.EventHandler
-    public void serverStarting(net.minecraftforge.fml.common.event.FMLServerStartingEvent event) {
-        event.registerServerCommand(new CommandUlStrength());
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandUlStrength(strengthService));
+        startReloadWatcher();
     }
 
-    /** config 覆盖文件改动自动热重载（5 秒轮询 mtime，改 JSON 不用重启）。 */
-    @Mod.EventBusSubscriber(modid = MODID)
-    public static final class ReloadWatcher {
-        private static long lastSignature = Long.MIN_VALUE;
-        private static int tickCounter;
+    @Mod.EventHandler
+    public void serverStopped(FMLServerStoppedEvent event) {
+        stopReloadWatcher();
+    }
 
-        private ReloadWatcher() {
-        }
-
-        @SubscribeEvent
-        public static void onServerTick(TickEvent.ServerTickEvent event) {
-            if (event.phase != TickEvent.Phase.START) {
-                return;
-            }
-            if (++tickCounter % 100 != 0) { // 100 tick = 5 秒
-                return;
-            }
-            long sig = DesignRegistry.configSignature();
-            if (sig != lastSignature) {
-                if (lastSignature != Long.MIN_VALUE) {
-                    LOGGER.info("[uld] strength config changed — reloading");
-                    DesignRegistry.reload();
+    private synchronized void startReloadWatcher() {
+        stopReloadWatcher();
+        lastSignature = strengthService.computeConfigSignature();
+        reloadWatcher = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "ul-strength-reload-watcher");
+            t.setDaemon(true);
+            return t;
+        });
+        reloadWatcher.scheduleWithFixedDelay(() -> {
+            try {
+                long sig = strengthService.computeConfigSignature();
+                if (sig != lastSignature) {
+                    if (lastSignature != Long.MIN_VALUE) {
+                        LOGGER.info("[uld] strength config changed — reloading");
+                        strengthService.reload();
+                    }
+                    lastSignature = sig;
                 }
-                lastSignature = sig;
+            } catch (Throwable t) {
+                LOGGER.warn("[uld] reload watcher error", t);
             }
+        }, 5L, 5L, TimeUnit.SECONDS);
+    }
+
+    private synchronized void stopReloadWatcher() {
+        if (reloadWatcher != null) {
+            reloadWatcher.shutdownNow();
+            reloadWatcher = null;
         }
     }
 }

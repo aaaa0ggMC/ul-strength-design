@@ -30,6 +30,7 @@ repositories {
 
 dependencies {
     // 无第三方依赖：纯 MC + Forge，可装进任何 1.12.2 实例做程式化控制
+    testCompile "junit:junit:4.13.2"
 }
 
 jar {
